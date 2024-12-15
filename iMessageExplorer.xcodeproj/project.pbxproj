@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C24B28D82D0E96AC00582F59 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = C24B28D72D0E96AC00582F59 /* SQLite */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C27FE8822D0E95C100BEDB32 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C24B28D82D0E96AC00582F59 /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = iMessageExplorer;
 			packageProductDependencies = (
+				C24B28D72D0E96AC00582F59 /* SQLite */,
 			);
 			productName = iMessageExplorer;
 			productReference = C27FE8702D0E95BE00BEDB32 /* iMessageExplorer.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = C27FE8672D0E95BE00BEDB32;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C24B28D62D0E96AC00582F59 /* XCRemoteSwiftPackageReference "SQLite" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C27FE8712D0E95BE00BEDB32 /* Products */;
 			projectDirPath = "";
@@ -549,6 +558,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C24B28D62D0E96AC00582F59 /* XCRemoteSwiftPackageReference "SQLite" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C24B28D72D0E96AC00582F59 /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C24B28D62D0E96AC00582F59 /* XCRemoteSwiftPackageReference "SQLite" */;
+			productName = SQLite;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C27FE8682D0E95BE00BEDB32 /* Project object */;
 }
