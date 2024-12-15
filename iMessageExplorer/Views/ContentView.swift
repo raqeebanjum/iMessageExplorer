@@ -6,74 +6,74 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @State private var selectedFolder: URL?
-    @State private var messages: [Message] = []
+    @State private var participantNames: [String] = []
+    @State private var folderURL: URL?
 
     var body: some View {
         VStack {
-            Text("iMessageExplorer")
-                .font(.largeTitle)
-                .padding()
-
-            if let folder = selectedFolder {
-                Text("Selected Folder: \(folder.path)")
-                    .foregroundColor(.green)
-                    .padding()
+            Text("Participants")
+                .font(.headline)
+            
+            if participantNames.isEmpty {
+                Text("No participants found")
+                    .foregroundColor(.gray)
             } else {
-                Text("No folder selected")
-                    .foregroundColor(.red)
-                    .padding()
+                List(participantNames, id: \.self) { name in
+                    Text(name)
+                }
             }
-
-            Button(action: selectFolder) {
-                Text("Select Messages Folder")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
+            
+            Button("Select Folder") {
+                selectFolder()
             }
             .padding()
-
-            if !messages.isEmpty {
-                List(messages) { message in
-                    MessageBubbleView(message: message)
-                }
-            } else {
-                Text("No messages loaded")
-                    .padding()
-            }
         }
-        .frame(width: 400, height: 600)
     }
-
+    
+    /// Folder picker using NSOpenPanel
     func selectFolder() {
         let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
+        panel.title = "Choose the iMessage folder"
+        panel.allowedContentTypes = [UTType.folder]
         panel.allowsMultipleSelection = false
-        panel.title = "Select Messages Folder"
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
 
-        if panel.runModal() == .OK, let folderURL = panel.url {
-            // Check if chat.db exists in the selected folder
-            let chatDbPath = folderURL.appendingPathComponent("chat.db")
-            
-            if FileManager.default.fileExists(atPath: chatDbPath.path) {
-                selectedFolder = folderURL
-                messages = DatabaseHelper.fetchMessages(from: folderURL)
-                
-                print("Selected folder: \(folderURL.path)")
-                print("Loaded \(messages.count) messages")
-            } else {
-                // Alert the user that no chat.db was found
-                let alert = NSAlert()
-                alert.messageText = "No chat.db found"
-                alert.informativeText = "Please select the folder containing the chat.db file."
-                alert.alertStyle = .warning
-                alert.addButton(withTitle: "OK")
-                alert.runModal()
+        if panel.runModal() == .OK, let selectedFolder = panel.url {
+            folderURL = selectedFolder
+            fetchParticipantNames(from: selectedFolder)
+        }
+    }
+
+    /// Fetch participant names using the Python script
+    func fetchParticipantNames(from folder: URL) {
+        let pythonScript = Bundle.main.path(forResource: "database_helper", ofType: "py")!
+        let dbPath = folder.appendingPathComponent("chat.db").path
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/python3")
+        process.arguments = [pythonScript, dbPath]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            if let output = String(data: data, encoding: .utf8),
+               let jsonData = output.data(using: .utf8),
+               let names = try? JSONDecoder().decode([String].self, from: jsonData) {
+                DispatchQueue.main.async {
+                    participantNames = names
+                }
             }
+        } catch {
+            print("Error running Python script: \(error)")
         }
     }
 }
